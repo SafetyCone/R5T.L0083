@@ -2,7 +2,7 @@
 LibGit2Sharp library.
 
 
-## How this librar works.
+## How this library works.
 
 This library uses the net6.0 target framework platform. It uses net6.0 (instead of the default netstandard2.1) because the latest version of LibGit2Sharp uses net6.0.
 

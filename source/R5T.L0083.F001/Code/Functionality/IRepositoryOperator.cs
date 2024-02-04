@@ -6,6 +6,8 @@ using LibGit2Sharp;
 
 using R5T.T0132;
 
+using Glossary = R5T.Y0004.Glossary;
+
 
 namespace R5T.L0083.F001
 {
@@ -201,9 +203,6 @@ namespace R5T.L0083.F001
 
         public bool Has_UnpushedChanges(Repository repository)
         {
-            // Assume no unpushed changes.
-            var hasUnPushedChanges = false;
-
             // Are there any untracked files? (Other than ignored files.)
             // => I think the below takes care of this.
 
@@ -212,7 +211,7 @@ namespace R5T.L0083.F001
                 repository.Head.Tip.Tree,
                 DiffTargets.Index | DiffTargets.WorkingDirectory);
 
-            hasUnPushedChanges = treeChanges.Count > 0;
+            var hasUnPushedChanges = treeChanges.Count > 0;
             if (hasUnPushedChanges)
             {
                 return hasUnPushedChanges;
@@ -323,7 +322,15 @@ namespace R5T.L0083.F001
                 password);
         }
 
-        public int Stage_Unstaged(Repository repository)
+        public int Stage_UnstagedPaths(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Stage_UnstagedPaths(repository);
+            return output;
+        }
+
+        public int Stage_UnstagedPaths(Repository repository)
         {
             var unstagedPaths = this.List_UnstagedPaths(repository);
 
@@ -359,6 +366,9 @@ namespace R5T.L0083.F001
             }
         }
 
+        /// <summary>
+        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryGitDirectory" path="/name"/> path.
+        /// </summary>
         // Prior work in R5T.L0001.Extensions.
         public bool Try_Discover_RepositoryDirectoryPath(
             string path,

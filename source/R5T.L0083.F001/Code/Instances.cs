@@ -10,11 +10,14 @@ namespace R5T.L0083.F001
         public static ICredentialsOperator CredentialsOperator => F001.CredentialsOperator.Instance;
         public static L0066.IDateTimeOperator DateTimeOperator => L0066.DateTimeOperator.Instance;
         public static IFetchOptionsOperator FetchOptionsOperator => F001.FetchOptionsOperator.Instance;
+        public static ILibGit2SharpOperator LibGit2SharpOperator => F001.LibGit2SharpOperator.Instance;
         public static L0066.INullOperator NullOperator => L0066.NullOperator.Instance;
+        public static L0066.IPathOperator PathOperator => L0066.PathOperator.Instance;
         public static IPushOptionsOperator PushOptionsOperator => F001.PushOptionsOperator.Instance;
         public static IRemoteNames RemoteNames => F001.RemoteNames.Instance;
         public static IRemoteOperator RemoteOperator => F001.RemoteOperator.Instance;
         public static IRepositoryOperator RepositoryOperator => F001.RepositoryOperator.Instance;
         public static ISignatureOperator SignatureOperator => F001.SignatureOperator.Instance;
+        public static IValues Values => F001.Values.Instance;
     }
 }

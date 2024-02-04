@@ -65,6 +65,15 @@ namespace R5T.L0083.F001
                 password);
         }
 
+        /// <summary>
+        /// Quality-of-life overload for <see cref="Get_Remote_Origin_Url(string)"/>.
+        /// </summary>
+        public string Get_RepositoryRemoteUrl(string pathInRepositoryDirectory)
+        {
+            var output = this.Get_Remote_Origin_Url(pathInRepositoryDirectory);
+            return output;
+        }
+
         public string Get_Remote_Origin_Url(string pathInRepositoryDirectory)
         {
             var repositoryDirectoryPath = Instances.RepositoryOperator.Discover_RepositoryDirectoryPath(pathInRepositoryDirectory);
@@ -75,7 +84,13 @@ namespace R5T.L0083.F001
             return originRemoteUrl;
         }
 
-        public bool Push_Changes(
+        public bool Has_UnpushedChanges(string repositoryDirectoryPath)
+        {
+            var output = Instances.RepositoryOperator.Has_UnpushedChanges(repositoryDirectoryPath);
+            return output;
+        }
+
+        public bool Push_WithStageAndCommit(
             string repositoryDirectoryPath,
             string commitMessage,
             string authorName,
@@ -88,7 +103,7 @@ namespace R5T.L0083.F001
             var hasUnpushedChanges = Instances.RepositoryOperator.Has_UnpushedChanges(repository);
             if(hasUnpushedChanges)
             {
-                Instances.RepositoryOperator.Stage_Unstaged(repository);
+                Instances.RepositoryOperator.Stage_UnstagedPaths(repository);
 
                 Instances.RepositoryOperator.Commit(
                     repository,
@@ -103,6 +118,31 @@ namespace R5T.L0083.F001
             }
 
             return hasUnpushedChanges;
+        }
+
+        public bool Push(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+        {
+            using var repository = Instances.RepositoryOperator.Get_Repository(repositoryDirectoryPath);
+
+            var hasUnpushedChanges = Instances.RepositoryOperator.Has_UnpushedChanges(repository);
+            if (hasUnpushedChanges)
+            {
+                Instances.RepositoryOperator.Push(
+                    repository,
+                    username,
+                    password);
+            }
+
+            return hasUnpushedChanges;
+        }
+
+        public int Stage_UnstagedPaths(string repositoryDirectoryPath)
+        {
+            var output = Instances.RepositoryOperator.Stage_UnstagedPaths(repositoryDirectoryPath);
+            return output;
         }
     }
 }
