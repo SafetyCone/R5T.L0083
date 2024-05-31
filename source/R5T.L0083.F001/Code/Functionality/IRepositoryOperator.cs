@@ -24,7 +24,8 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
-            // Safety check that local repository directory path is empty (if exists), it performed here.
+            // LibGit2Sharp will create the local repository directory if it exists.
+            // LibGit2Sharp will also perform the safety check that local repository directory path is empty (if it exists).
             // LibGit2Sharp.NameConflictException, '{directory path}' exists and is not an empty directory
             var repositoryGitDirectoryPath = Repository.Clone(sourceUrl, repositoryDirectoryPath, options);
             return repositoryGitDirectoryPath;

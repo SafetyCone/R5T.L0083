@@ -109,6 +109,9 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        public bool Is_GitRepository(string directoryPath)
+            => Instances.RepositoryOperator.Is_Repository(directoryPath);
+
         public bool Push(
             string repositoryDirectoryPath,
             string username,
