@@ -85,10 +85,7 @@ namespace R5T.L0083.F001
         }
 
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
-        {
-            var output = Instances.RepositoryOperator.Has_UnpushedChanges(repositoryDirectoryPath);
-            return output;
-        }
+            => Instances.RepositoryOperator.Has_UnpushedChanges(repositoryDirectoryPath);
 
         public bool Is_GitRepository(string directoryPath)
             => Instances.RepositoryOperator.Is_Repository(directoryPath);

@@ -59,7 +59,7 @@ namespace R5T.L0083.F001
             string authorName,
             string authorEmailAddress)
         {
-            var repository = this.Get_Repository(repositoryDirectoryPath);
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
 
             this.Commit(
                 repository,
@@ -140,6 +140,19 @@ namespace R5T.L0083.F001
             return revisionIdentity;
         }
 
+        public string Get_DirectoryPath(Repository repository)
+        {
+            var gitDirectoryPath = this.Get_GitDirectoryPath(repository);
+
+            var output = Instances.PathOperator.Get_ParentDirectoryPath(
+                gitDirectoryPath);
+
+            return output;
+        }
+
+        public string Get_GitDirectoryPath(Repository repository)
+            => repository.Info.Path;
+
         public string Get_Remote_Origin_Url(Repository repository)
         {
             var originRemote = this.Get_Remote_Origin(repository);
@@ -204,18 +217,13 @@ namespace R5T.L0083.F001
 
         public bool Has_UnpushedChanges(Repository repository)
         {
-            // Are there any untracked files? (Other than ignored files.)
-            // => I think the below takes care of this.
+            // Are there any differenced or staged files in the working copy?
+            var anyDifferencedStagedFiles = this.Enumerate_DifferencedOrStaged_RelativeFilePaths(repository)
+                .Any();
 
-            // Are there any unstaged or uncommitted changes?
-            var treeChanges = repository.Diff.Compare<TreeChanges>(
-                repository.Head.Tip.Tree,
-                DiffTargets.Index | DiffTargets.WorkingDirectory);
-
-            var hasUnPushedChanges = treeChanges.Count > 0;
-            if (hasUnPushedChanges)
+            if(anyDifferencedStagedFiles)
             {
-                return hasUnPushedChanges;
+                return true;
             }
 
             // Get the current branch.
@@ -223,24 +231,20 @@ namespace R5T.L0083.F001
 
             // Is the current branch untracked? This indicates that it has not been pushed to the remote!
             var isUntracked = !currentBranch.IsTracking;
-
-            hasUnPushedChanges = isUntracked;
-            if (hasUnPushedChanges)
+            if(isUntracked)
             {
-                return hasUnPushedChanges;
+                return true;
             }
 
             // Is the current branch ahead its remote tracking branch?
             var currentBranchLocalIsAheadOfRemote = currentBranch.TrackingDetails.AheadBy > 0;
-
-            hasUnPushedChanges = currentBranchLocalIsAheadOfRemote;
-            if (hasUnPushedChanges)
+            if(currentBranchLocalIsAheadOfRemote)
             {
-                return hasUnPushedChanges;
+                return true;
             }
 
-            // Finally, return the originally assumed value, that there are no unpushed changes.
-            return hasUnPushedChanges;
+            // Finally, return false since there are no unpushed changes.
+            return false;
         }
 
         public bool Is_Repository(string directoryPath)
@@ -266,6 +270,174 @@ namespace R5T.L0083.F001
                 .ToArray();
 
             return unstagedPaths;
+        }
+
+        public string[] Get_DifferencedOrStaged_FilePaths(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Enumerate_DifferencedOrStaged_FilePaths(repository)
+                .Now();
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_DifferencedOrStaged_FilePaths(Repository repository)
+        {
+            var repositoryDirectoryPath = this.Get_DirectoryPath(repository);
+
+            var output = this.Enumerate_DifferencedOrStaged_RelativeFilePaths(repository)
+                .Select(relativeFilePath => Instances.PathOperator.Get_FilePath(
+                    repositoryDirectoryPath,
+                    relativeFilePath))
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_DifferencedOrStaged_RelativeFilePaths(Repository repository)
+        {
+            var differencedFilePaths = this.Enumerate_DifferencedOrStaged_Changes(repository)
+                .Select(xChange => xChange.Path)
+                ;
+
+            return differencedFilePaths;
+        }
+
+        public string[] Get_DifferencedButUnstaged_FilePaths(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Enumerate_DifferencedButUnstaged_FilePaths(repository)
+                .Now();
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_DifferencedButUnstaged_FilePaths(Repository repository)
+        {
+            var repositoryDirectoryPath = this.Get_DirectoryPath(repository);
+
+            var output = this.Enumerate_DifferencedButUnstaged_RelativeFilePaths(repository)
+                .Select(relativeFilePath => Instances.PathOperator.Get_FilePath(
+                    repositoryDirectoryPath,
+                    relativeFilePath))
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_DifferencedButUnstaged_RelativeFilePaths(Repository repository)
+        {
+            var unaddedFilePaths = this.Enumerate_DifferencedButUnstaged_Changes(repository)
+                .Select(xChange => xChange.Path)
+               // For debug.
+               //.Select(xChange =>
+               //{
+               //    Console.WriteLine($"{xChange.Status}: {xChange.Path}");
+
+               //    return xChange.Path;
+               //})
+               ;
+
+            return unaddedFilePaths;
+        }
+
+        public string[] Get_StagedButUncommitted_FilePaths(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Enumerate_StagedButUncommitted_FilePaths(repository)
+                .Now();
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_StagedButUncommitted_FilePaths(Repository repository)
+        {
+            var repositoryDirectoryPath = this.Get_DirectoryPath(repository);
+
+            var output = this.Enumerate_StagedButUncommitted_RelativeFilePaths(repository)
+                .Select(relativeFilePath => Instances.PathOperator.Get_FilePath(
+                    repositoryDirectoryPath,
+                    relativeFilePath))
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_StagedButUncommitted_RelativeFilePaths(Repository repository)
+        {
+            var unaddedFilePaths = this.Enumerate_StagedButUncommitted_Changes(repository)
+                .Select(xChange => xChange.Path)
+                ;
+
+            return unaddedFilePaths;
+        }
+
+        public IEnumerable<TreeEntryChanges> Enumerate_DifferencedButUnstaged_Changes(Repository repository)
+        {
+            var output = repository.Diff.Compare<TreeChanges>(
+                repository.Head.Tip.Tree,
+                DiffTargets.WorkingDirectory)
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<TreeEntryChanges> Enumerate_StagedButUncommitted_Changes(Repository repository)
+        {
+            var output = repository.Diff.Compare<TreeChanges>(
+                repository.Head.Tip.Tree,
+                DiffTargets.Index)
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<TreeEntryChanges> Enumerate_DifferencedOrStaged_Changes(Repository repository)
+        {
+            var output = repository.Diff.Compare<TreeChanges>(
+                repository.Head.Tip.Tree,
+                DiffTargets.Index | DiffTargets.WorkingDirectory)
+                ;
+
+            return output;
+        }
+
+        public string[] Get_UnaddedFilePaths(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Enumerate_UnaddedFilePaths(repository)
+                .Now();
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_UnaddedFilePaths(Repository repository)
+        {
+            var repositoryDirectoryPath = this.Get_DirectoryPath(repository);
+
+            var output = this.Enumerate_UnaddedRelativeFilePaths(repository)
+                .Select(relativeFilePath => Instances.PathOperator.Get_FilePath(
+                    repositoryDirectoryPath,
+                    relativeFilePath))
+                ;
+
+            return output;
+        }
+
+        public IEnumerable<string> Enumerate_UnaddedRelativeFilePaths(Repository repository)
+        {
+            var output = this.Enumerate_DifferencedButUnstaged_Changes(repository)
+                // Because these are changes, for untracked files, the change relative to the local repository would be an addition.
+                // So the change is "added" not "untraced".
+                .Where(change => change.Status == ChangeKind.Added)
+                .Select(change => change.Path)
+                ;
+
+            return output;
         }
 
         public void Push_HeadToOrigin(

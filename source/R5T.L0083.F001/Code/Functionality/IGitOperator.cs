@@ -104,15 +104,27 @@ namespace R5T.L0083.F001
         }
 
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
-        {
-            var output = Instances.LibGit2SharpOperator.Has_UnpushedChanges(repositoryDirectoryPath);
-            return output;
-        }
+            => Instances.LibGit2SharpOperator.Has_UnpushedChanges(repositoryDirectoryPath);
 
         public bool Is_GitRepository(string directoryPath)
             => Instances.RepositoryOperator.Is_Repository(directoryPath);
 
-        public bool Push(
+        public string[] Get_DifferencedOrStaged_FilePaths(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Get_DifferencedOrStaged_FilePaths(repositoryDirectoryPath);
+
+        public string[] Get_DifferencedButUnstaged_FilePaths(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Get_DifferencedButUnstaged_FilePaths(repositoryDirectoryPath);
+
+        public string[] Get_StagedButUncommitted_FilePaths(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Get_StagedButUncommitted_FilePaths(repositoryDirectoryPath);
+
+        public string[] Get_UnaddedFilePaths(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Get_UnaddedFilePaths(repositoryDirectoryPath);
+
+        public string[] List_UnstagedFilePaths(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.List_UnstagedPaths(repositoryDirectoryPath);
+
+        public bool Push_WithoutStageAndCommit(
             string repositoryDirectoryPath,
             string username,
             string password)
@@ -124,6 +136,44 @@ namespace R5T.L0083.F001
 
             return output;
         }
+
+        /// <summary>
+        /// As opposed to <see cref="Push_WithoutStageAndCommit(string, string, string)"/>, this method stages, commits, and pushes changes.
+        /// </summary>
+        public void Push_WithStageAndCommit(
+            string repositoryDirectoryPath,
+            string commitMessage,
+            string authorName,
+            string authorEmailAddress,
+            string username,
+            string password)
+        {
+            Instances.LibGit2SharpOperator.Push_WithStageAndCommit(
+                repositoryDirectoryPath,
+                commitMessage,
+                authorName,
+                authorEmailAddress,
+                username,
+                password);
+        }
+
+        /// <summary>
+        /// Chooses <see cref="Push_WithoutStageAndCommit(string, string, string)"/> as the default.
+        /// </summary>
+        public void Push(
+            string repositoryDirectoryPath,
+            string commitMessage,
+            string authorName,
+            string authorEmailAddress,
+            string username,
+            string password)
+            => this.Push_WithStageAndCommit(
+                repositoryDirectoryPath,
+                commitMessage,
+                authorName,
+                authorEmailAddress,
+                username,
+                password);
 
         public int Stage_UnstagedPaths(string repositoryDirectoryPath)
         {
