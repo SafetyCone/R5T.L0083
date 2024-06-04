@@ -50,6 +50,15 @@ namespace R5T.L0083.F001
                 authorEmailAddress);
         }
 
+        public void Fetch_Remote(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => Instances.RepositoryOperator.Fetch_Origin(
+                repositoryDirectoryPath,
+                username,
+                password);
+
         public string Get_RepositoryDirectoryPath(string path)
         {
             var wasFound = this.Has_Repository(
@@ -103,6 +112,21 @@ namespace R5T.L0083.F001
             return wasFound_GitDirectory;
         }
 
+        /// <summary>
+        /// Determines if a local repository has unpulled changes on its main branch relative it origin remote.
+        /// </summary>
+        public bool Has_UnpulledChanges(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => Instances.RepositoryOperator.Has_UnpulledChanges(
+                repositoryDirectoryPath,
+                username,
+                password);
+
+        public bool Has_OnlyUnpushedChanges(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Has_OnlyUnpushedChanges(repositoryDirectoryPath);
+
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
             => Instances.LibGit2SharpOperator.Has_UnpushedChanges(repositoryDirectoryPath);
 
@@ -124,6 +148,18 @@ namespace R5T.L0083.F001
         public string[] List_UnstagedFilePaths(string repositoryDirectoryPath)
             => Instances.RepositoryOperator.List_UnstagedPaths(repositoryDirectoryPath);
 
+        public void Pull_WithFetch(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => Instances.RepositoryOperator.Pull_WithFetch(
+                repositoryDirectoryPath,
+                username,
+                password);
+
+        public void Pull_WithoutFetch(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Pull_WithoutFetch_IsMerge(repositoryDirectoryPath);
+
         public bool Push_WithoutStageAndCommit(
             string repositoryDirectoryPath,
             string username,
@@ -138,7 +174,7 @@ namespace R5T.L0083.F001
         }
 
         /// <summary>
-        /// As opposed to <see cref="Push_WithoutStageAndCommit(string, string, string)"/>, this method stages, commits, and pushes changes.
+        /// As opposed to <see cref="Push_WithStageAndCommit(string, string, string, string, string, string)"/>, this method stages, commits, and pushes changes.
         /// </summary>
         public void Push_WithStageAndCommit(
             string repositoryDirectoryPath,

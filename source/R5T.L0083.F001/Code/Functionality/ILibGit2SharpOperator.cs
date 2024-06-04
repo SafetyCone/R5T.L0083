@@ -59,7 +59,7 @@ namespace R5T.L0083.F001
             string username,
             string password)
         {
-            Instances.RepositoryOperator.Fetch(
+            Instances.RepositoryOperator.Fetch_Origin(
                 repositoryDirectoryPath,
                 username,
                 password);

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using LibGit2Sharp;
 
 using R5T.T0132;
@@ -100,19 +100,54 @@ namespace R5T.L0083.F001
             Commands.Fetch(repository, remote.Name, refSpecs, fetchOptions, logMessage);
         }
 
-        // Adapted from here: https://github.com/libgit2/libgit2sharp/wiki/git-fetch
+        /// <summary>
+        /// Chooses <see cref="Fetch_Origin(string, string, string)"/> as the default.
+        /// </summary>
         public void Fetch(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => this.Fetch_Origin(
+                repositoryDirectoryPath,
+                username,
+                password);
+
+        /// <summary>
+        /// Chooses <see cref="Fetch(Repository, string, string)"/> as the default.
+        /// </summary>
+        public void Fetch(
+            Repository repository,
+            string username,
+            string password)
+            => this.Fetch_Origin(
+                repository,
+                username,
+                password);
+
+        public void Fetch_Origin(
+            Repository repository,
+            string username,
+            string password)
+        {
+            var remote = Instances.RepositoryOperator.Get_Remote_Origin(repository);
+
+            Instances.RepositoryOperator.Fetch(
+                repository,
+                remote,
+                username,
+                password);
+        }
+
+        // Adapted from here: https://github.com/libgit2/libgit2sharp/wiki/git-fetch
+        public void Fetch_Origin(
             string repositoryDirectoryPath,
             string username,
             string password)
         {
             using var repository = Instances.RepositoryOperator.Get_Repository(repositoryDirectoryPath);
 
-            var remote = Instances.RepositoryOperator.Get_Remote_Origin(repository);
-
-            Instances.RepositoryOperator.Fetch(
+            this.Fetch_Origin(
                 repository,
-                remote,
                 username,
                 password);
         }
@@ -191,6 +226,69 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        /// <summary>
+        /// Chooses <see cref="Has_UnpulledChanges_WithFetch(string, string, string)"/> as the default.
+        /// </summary>
+        public bool Has_UnpulledChanges(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => this.Has_UnpulledChanges_WithFetch(
+                repositoryDirectoryPath,
+                username,
+                password);
+
+        public bool Has_UnpulledChanges_WithFetch(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Has_UnpulledChanges_WithFetch(
+                repository,
+                username,
+                password);
+
+            return output;
+        }
+
+        public bool Has_UnpulledChanges_WithFetch(
+            Repository repository,
+            string username,
+            string password)
+        {
+            this.Fetch(
+                repository,
+                username,
+                password);
+
+            var output = this.Has_UnpulledChanges_WithoutFetch(repository);
+            return output;
+        }
+
+        public bool Has_UnpulledChanges_WithoutFetch(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Has_UnpulledChanges_WithoutFetch(repository);
+            return output;
+        }
+
+        public bool Has_UnpulledChanges_WithoutFetch(Repository repository)
+        {
+            // Determine if the local master branch is behind the remote master branch.
+            var mainBranch = this.Get_Branch_Main(repository);
+
+            var isBehind = mainBranch.TrackingDetails.BehindBy;
+
+            var output = isBehind.HasValue && isBehind.Value > 0;
+            return output;
+        }
+
+        /// <summary>
+        /// Note: only works after a fetch.
+        /// </summary>
         // Prior work in R5T.D0038.L0001.
         public bool Has_UnpulledMainBranchChanges(string repositoryDirectoryPath)
         {
@@ -206,6 +304,7 @@ namespace R5T.L0083.F001
             return hasUnpulledMasterBranchChanges;
         }
 
+        /// <inheritdoc cref="Has_UnpushedChanges(Repository)"/>
         // Prior work in R5T.D0038.L0001.
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
         {
@@ -215,30 +314,57 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        /// <summary>
+        /// As opposed to <see cref="Has_OnlyUnpushedChanges(Repository)"/>, this method also looks for differenced or staged files, not just unpushed commits.
+        /// </summary>
         public bool Has_UnpushedChanges(Repository repository)
         {
             // Are there any differenced or staged files in the working copy?
-            var anyDifferencedStagedFiles = this.Enumerate_DifferencedOrStaged_RelativeFilePaths(repository)
+            var anyDifferencedOrStagedFiles = this.Enumerate_DifferencedOrStaged_RelativeFilePaths(repository)
                 .Any();
 
-            if(anyDifferencedStagedFiles)
+            if(anyDifferencedOrStagedFiles)
             {
                 return true;
             }
 
+            var anyOnlyUnpushedChanges = this.Has_OnlyUnpushedChanges(repository);
+            if(anyOnlyUnpushedChanges)
+            {
+                return true;
+            }
+
+            // Finally, return false since there are no unpushed changes.
+            return false;
+        }
+
+        /// <inheritdoc cref="Has_OnlyUnpushedChanges(Repository)"/>
+        public bool Has_OnlyUnpushedChanges(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Has_OnlyUnpushedChanges(repository);
+            return output;
+        }
+
+        /// <summary>
+        /// As opposed to <see cref="Has_UnpushedChanges(Repository)"/>, this does not look for differenced or staged files, just unpushed commits.
+        /// </summary>
+        public bool Has_OnlyUnpushedChanges(Repository repository)
+        {
             // Get the current branch.
             var currentBranch = repository.Head;
 
-            // Is the current branch untracked? This indicates that it has not been pushed to the remote!
+            // Is the current branch untracked? This indicates that it has never been pushed to the remote!
             var isUntracked = !currentBranch.IsTracking;
-            if(isUntracked)
+            if (isUntracked)
             {
                 return true;
             }
 
             // Is the current branch ahead its remote tracking branch?
             var currentBranchLocalIsAheadOfRemote = currentBranch.TrackingDetails.AheadBy > 0;
-            if(currentBranchLocalIsAheadOfRemote)
+            if (currentBranchLocalIsAheadOfRemote)
             {
                 return true;
             }
@@ -437,6 +563,73 @@ namespace R5T.L0083.F001
                 .Select(change => change.Path)
                 ;
 
+            return output;
+        }
+
+        public MergeResult Pull_WithFetch(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Pull_WithFetch(
+                repository,
+                username,
+                password);
+
+            return output;
+        }
+
+        public MergeResult Pull_WithFetch(
+            Repository repository,
+            string username,
+            string password)
+        {
+            var pullOptions = new PullOptions
+            {
+                FetchOptions = Instances.FetchOptionsOperator.Get_FetchOptions(
+                    username,
+                    password),
+                MergeOptions = new MergeOptions
+                {
+                    FastForwardStrategy = FastForwardStrategy.Default,
+                    //OnCheckoutNotify
+                }
+            };
+
+            var signature = repository.Config.BuildSignature(DateTimeOffset.Now);
+
+            var output = Commands.Pull(
+                repository,
+                signature,
+                pullOptions);
+
+            return output;
+        }
+
+        public MergeResult Pull_WithoutFetch_IsMerge(string repositoryDirectoryPath)
+        {
+            using var repository = this.Get_Repository(repositoryDirectoryPath);
+
+            var output = this.Pull_WithoutFetch_IsMerge(repository);
+            return output;
+        }
+
+        public MergeResult Pull_WithoutFetch_IsMerge(Repository repository)
+        {
+            var mergeOptions = new MergeOptions
+            {
+                FastForwardStrategy = FastForwardStrategy.Default,
+                //OnCheckoutNotify
+            };
+
+            var mainBranch = this.Get_Branch_Main(repository);
+
+
+            var signature = repository.Config.BuildSignature(DateTimeOffset.Now);
+
+            var output = repository.Merge(mainBranch.TrackedBranch, signature, mergeOptions);
             return output;
         }
 
