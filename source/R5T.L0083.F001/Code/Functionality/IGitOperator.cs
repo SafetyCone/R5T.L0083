@@ -124,6 +124,9 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
+        public bool Has_UnpulledChanges_WithoutFetch(string repositoryDirectoryPath)
+            => Instances.RepositoryOperator.Has_UnpulledChanges_WithoutFetch(repositoryDirectoryPath);
+
         public bool Has_OnlyUnpushedChanges(string repositoryDirectoryPath)
             => Instances.RepositoryOperator.Has_OnlyUnpushedChanges(repositoryDirectoryPath);
 
