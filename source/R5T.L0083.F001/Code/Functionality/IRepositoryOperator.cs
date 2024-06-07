@@ -608,15 +608,25 @@ namespace R5T.L0083.F001
             return output;
         }
 
-        public MergeResult Pull_WithoutFetch_IsMerge(string repositoryDirectoryPath)
+        public MergeResult Pull_WithoutFetch_IsMerge(
+            string repositoryDirectoryPath,
+            string authorName,
+            string authorEmail)
         {
             using var repository = this.Get_Repository(repositoryDirectoryPath);
 
-            var output = this.Pull_WithoutFetch_IsMerge(repository);
+            var output = this.Pull_WithoutFetch_IsMerge(
+                repository,
+                authorName,
+                authorEmail);
+
             return output;
         }
 
-        public MergeResult Pull_WithoutFetch_IsMerge(Repository repository)
+        public MergeResult Pull_WithoutFetch_IsMerge(
+            Repository repository,
+            string authorName,
+            string authorEmail)
         {
             var mergeOptions = new MergeOptions
             {
@@ -626,8 +636,11 @@ namespace R5T.L0083.F001
 
             var mainBranch = this.Get_Branch_Main(repository);
 
-
-            var signature = repository.Config.BuildSignature(DateTimeOffset.Now);
+            //var signature = repository.Config.BuildSignature(DateTimeOffset.Now);
+            var signature = new Signature(
+                authorName,
+                authorEmail,
+                DateTimeOffset.Now);
 
             var output = repository.Merge(mainBranch.TrackedBranch, signature, mergeOptions);
             return output;

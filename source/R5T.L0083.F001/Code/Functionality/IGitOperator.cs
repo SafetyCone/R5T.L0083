@@ -160,8 +160,14 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
-        public void Pull_WithoutFetch(string repositoryDirectoryPath)
-            => Instances.RepositoryOperator.Pull_WithoutFetch_IsMerge(repositoryDirectoryPath);
+        public void Pull_WithoutFetch(
+            string repositoryDirectoryPath,
+            string authorName,
+            string authorEmail)
+            => Instances.RepositoryOperator.Pull_WithoutFetch_IsMerge(
+                repositoryDirectoryPath,
+                authorName,
+                authorEmail);
 
         public bool Push_WithoutStageAndCommit(
             string repositoryDirectoryPath,
