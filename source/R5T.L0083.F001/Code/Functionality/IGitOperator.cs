@@ -59,6 +59,12 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
+        public DateTimeOffset Get_LatestCommit_Timestamp(string repositoryDirectoryPath)
+        {
+            var output = Instances.LibGit2SharpOperator.Get_LatestCommit_Timestamp(repositoryDirectoryPath);
+            return output;
+        }
+
         public string Get_RepositoryDirectoryPath(string path)
         {
             var wasFound = this.Has_Repository(
@@ -80,7 +86,7 @@ namespace R5T.L0083.F001
         }
 
         /// <summary>
-        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryGitDirectory" path="/name"/> path.
+        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryGitDirectory" path="/name"/> path, or null if no repository is found, or null if not found.
         /// </summary>
         public bool Has_Repository_GitDirectory(
             string path,
@@ -94,7 +100,8 @@ namespace R5T.L0083.F001
         }
 
         /// <summary>
-        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryDirectory" path="/name"/> path given a file or directory path from within the repository.
+        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryDirectory" path="/name"/> path given a file or directory path from within the repository,
+        /// or null if not found.
         /// </summary>
         public bool Has_Repository(
             string path,

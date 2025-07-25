@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+
 using LibGit2Sharp;
 
 using R5T.T0132;
@@ -11,6 +11,12 @@ using Glossary = R5T.Y0004.Glossary;
 
 namespace R5T.L0083.F001
 {
+    /// <summary>
+    /// Git repository functions.
+    /// </summary>
+    /// <remarks>
+    /// <inheritdoc cref="Documentation.Project_SelfDescription" path="/summary"/>
+    /// </remarks>
     [FunctionalityMarker]
     public partial interface IRepositoryOperator : IFunctionalityMarker
     {
@@ -83,47 +89,6 @@ namespace R5T.L0083.F001
             return repositoryPath;
         }
 
-        public void Fetch(
-            Repository repository,
-            Remote remote,
-            string username,
-            string password)
-        {
-            var fetchOptions = Instances.FetchOptionsOperator.Get_FetchOptions(
-                username,
-                password);
-
-            var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-
-            var logMessage = String.Empty;
-
-            Commands.Fetch(repository, remote.Name, refSpecs, fetchOptions, logMessage);
-        }
-
-        /// <summary>
-        /// Chooses <see cref="Fetch_Origin(string, string, string)"/> as the default.
-        /// </summary>
-        public void Fetch(
-            string repositoryDirectoryPath,
-            string username,
-            string password)
-            => this.Fetch_Origin(
-                repositoryDirectoryPath,
-                username,
-                password);
-
-        /// <summary>
-        /// Chooses <see cref="Fetch(Repository, string, string)"/> as the default.
-        /// </summary>
-        public void Fetch(
-            Repository repository,
-            string username,
-            string password)
-            => this.Fetch_Origin(
-                repository,
-                username,
-                password);
-
         public void Fetch_Origin(
             Repository repository,
             string username,
@@ -152,17 +117,121 @@ namespace R5T.L0083.F001
                 password);
         }
 
+        public void Fetch(
+            Repository repository,
+            Remote remote,
+            string username,
+            string password)
+        {
+            var fetchOptions = Instances.FetchOptionsOperator.Get_FetchOptions(
+                username,
+                password);
+
+            var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
+
+            var logMessage = String.Empty;
+
+            Commands.Fetch(repository, remote.Name, refSpecs, fetchOptions, logMessage);
+        }
+
+        /// <summary>
+        /// Chooses <see cref="Fetch(Repository, string, string)"/> as the default.
+        /// </summary>
+        public void Fetch(
+            Repository repository,
+            string username,
+            string password)
+            => this.Fetch_Origin(
+                repository,
+                username,
+                password);
+
+        /// <summary>
+        /// Chooses <see cref="Fetch_Origin(string, string, string)"/> as the default.
+        /// </summary>
+        public void Fetch(
+            string repositoryDirectoryPath,
+            string username,
+            string password)
+            => this.Fetch_Origin(
+                repositoryDirectoryPath,
+                username,
+                password);
+
+        public Repository From(string repositoryDirectoryPath)
+        {
+            var output = new Repository(repositoryDirectoryPath);
+            return output;
+        }
+
+        public bool Has_Branch(
+            Repository repository,
+            string branchName,
+            out Branch branch)
+        {
+            branch = repository.Branches[branchName];
+
+            var output = branch != Instances.Values.Branch_NotFound;
+            return output;
+        }
+
+        /// <inheritdoc cref="Get_DirectoryPath(Repository)"/>
+        public string Get_Path(Repository repository)
+            => this.Get_DirectoryPath(repository);
+
+        public Branch Get_Branch(
+            Repository repository,
+            string branchName)
+        {
+            var hasBranch = this.Has_Branch(
+                repository,
+                branchName,
+                out var output);
+
+            if(!hasBranch)
+            {
+                var repositoryPath = this.Get_Path(repository);
+
+                throw new Exception($"'{branchName}': Git repository branch not found in repository:\n{repositoryPath}");
+            }
+
+            return output;
+        }
+
         /// <summary>
         /// Returns null if not found.
         /// </summary>
         public Branch Get_Branch_Main(Repository repository)
         {
-            var mainBranch = repository.Branches[Instances.BranchNames.Main];
+            var has_Main = this.Has_Branch(
+                repository,
+                Instances.BranchNames.Main,
+                out var mainBranch);
 
-            // If the main branch does no exist, try the old name for the main branch.
-            mainBranch ??= repository.Branches[Instances.BranchNames.Master];
+            if(has_Main)
+            {
+                return mainBranch;
+            }
+            else
+            {
+                // If the main branch does no exist, try master, the old, non-DEI name for the main branch.
+                var has_Master = this.Has_Branch(
+                    repository,
+                    Instances.BranchNames.Master,
+                    out var masterBranch);
 
-            return mainBranch;
+                if(has_Master)
+                {
+                    return masterBranch;
+                }
+                else
+                {
+                    // Throw an exception.
+                    var repositoryPath = this.Get_Path(repository);
+
+                    throw new Exception($"Neither '{Instances.BranchNames.Main}' nor '{Instances.BranchNames.Master}' branches were found for repository:\n{repositoryPath}");
+                }
+            }
         }
 
         public string Get_LatesRevision_ForMainBranch(Repository repository)
@@ -403,7 +472,7 @@ namespace R5T.L0083.F001
             using var repository = this.Get_Repository(repositoryDirectoryPath);
 
             var output = this.Enumerate_DifferencedOrStaged_FilePaths(repository)
-                .Now();
+                .ToArray();
 
             return output;
         }
@@ -435,7 +504,7 @@ namespace R5T.L0083.F001
             using var repository = this.Get_Repository(repositoryDirectoryPath);
 
             var output = this.Enumerate_DifferencedButUnstaged_FilePaths(repository)
-                .Now();
+                .ToArray();
 
             return output;
         }
@@ -474,7 +543,7 @@ namespace R5T.L0083.F001
             using var repository = this.Get_Repository(repositoryDirectoryPath);
 
             var output = this.Enumerate_StagedButUncommitted_FilePaths(repository)
-                .Now();
+                .ToArray();
 
             return output;
         }
@@ -536,7 +605,7 @@ namespace R5T.L0083.F001
             using var repository = this.Get_Repository(repositoryDirectoryPath);
 
             var output = this.Enumerate_UnaddedFilePaths(repository)
-                .Now();
+                .ToArray();
 
             return output;
         }
@@ -746,8 +815,9 @@ namespace R5T.L0083.F001
         }
 
         /// <summary>
-        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryGitDirectory" path="/name"/> path.
+        /// Returns the <inheritdoc cref="Glossary.ForDirectories.RepositoryGitDirectory" path="/name"/> path, or null if no repository is found.
         /// </summary>
+        /// <param name="repositoryPath"><inheritdoc cref="Repository.Discover(string)" path="/returns"/></param>
         // Prior work in R5T.L0001.Extensions.
         public bool Try_Discover_RepositoryDirectoryPath(
             string path,

@@ -14,6 +14,9 @@ namespace R5T.L0083.F001
     [ValuesMarker]
     public partial interface IRemoteNames : IValuesMarker
     {
+        /// <summary>
+        /// <para><value>origin</value></para>
+        /// </summary>
         public string Origin => "origin";
     }
 }

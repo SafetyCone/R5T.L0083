@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 using LibGit2Sharp;
 
@@ -63,6 +62,24 @@ namespace R5T.L0083.F001
                 repositoryDirectoryPath,
                 username,
                 password);
+        }
+
+        public DateTimeOffset Get_LatestCommit_Timestamp(Repository repository)
+        {
+            // Get the HEAD's latest commit
+            var latestCommit = repository.Head.Tip;
+
+            // Get the commit date (use Author.When for authorship date or Committer.When for commit date)
+            var commitDate = latestCommit.Committer.When;
+            return commitDate;
+        }
+
+        public DateTimeOffset Get_LatestCommit_Timestamp(string repositoryDirectoryPath)
+        {
+            using var repository = Instances.RepositoryOperator.From(repositoryDirectoryPath);
+
+            var output = this.Get_LatestCommit_Timestamp(repository);
+            return output;
         }
 
         /// <summary>
