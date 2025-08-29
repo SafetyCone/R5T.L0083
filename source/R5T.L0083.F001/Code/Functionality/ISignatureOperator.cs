@@ -7,6 +7,9 @@ using R5T.T0132;
 
 namespace R5T.L0083.F001
 {
+    /// <summary>
+    /// LibGit2Sharp-related signature functions.
+    /// </summary>
     [FunctionalityMarker]
     public partial interface ISignatureOperator : IFunctionalityMarker
     {
