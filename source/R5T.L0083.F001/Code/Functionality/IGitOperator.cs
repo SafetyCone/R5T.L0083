@@ -1,5 +1,7 @@
 using System;
 
+using F10Y.T0011;
+
 using R5T.T0132;
 
 using Glossary = R5T.Y0004.Glossary;
@@ -18,6 +20,7 @@ namespace R5T.L0083.F001
         /// <remarks>
         /// Quality-of-life forward for <see cref="ILibGit2SharpOperator.Clone_NonIdempotent(string, string, string, string)"/>.
         /// </remarks>
+        [InstanceIdentity("E42F0A64-ABC8-4FB8-88CD-C331BA196A9C")]
         public string Clone_NonIdempotent(
             string sourceUrl,
             string repositoryDirectoryPath,
@@ -50,6 +53,7 @@ namespace R5T.L0083.F001
                 authorEmailAddress);
         }
 
+        [InstanceIdentity("5211E6C4-8EF9-4624-9DD2-DFA6DF2C059D")]
         public void Fetch_Remote(
             string repositoryDirectoryPath,
             string username,
@@ -79,6 +83,7 @@ namespace R5T.L0083.F001
             return repositoryDirectoryPath;
         }
 
+        [InstanceIdentity("DCDCF69B-AADA-49FE-A7B0-FF19D44D6A9C")]
         public string Get_RepositoryRemoteUrl(string pathInRepositoryDirectory)
         {
             var output = Instances.LibGit2SharpOperator.Get_RepositoryRemoteUrl(pathInRepositoryDirectory);
@@ -131,15 +136,18 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
+        [InstanceIdentity("580CEF21-1323-4B78-87A3-554C8432F944")]
         public bool Has_UnpulledChanges_WithoutFetch(string repositoryDirectoryPath)
             => Instances.RepositoryOperator.Has_UnpulledChanges_WithoutFetch(repositoryDirectoryPath);
 
         public bool Has_OnlyUnpushedChanges(string repositoryDirectoryPath)
             => Instances.RepositoryOperator.Has_OnlyUnpushedChanges(repositoryDirectoryPath);
 
+        [InstanceIdentity("74DDE904-5EA5-4B24-A18C-5369CF08123D")]
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
             => Instances.LibGit2SharpOperator.Has_UnpushedChanges(repositoryDirectoryPath);
 
+        [InstanceIdentity("F79C2884-3BF8-4F73-AB28-B011FD6CF371")]
         public bool Is_GitRepository(string directoryPath)
             => Instances.RepositoryOperator.Is_Repository(directoryPath);
 
@@ -167,6 +175,7 @@ namespace R5T.L0083.F001
                 username,
                 password);
 
+        [InstanceIdentity("8E3D6176-CCEA-4537-AE25-A2F2299D2AC9")]
         public void Pull_WithoutFetch(
             string repositoryDirectoryPath,
             string authorName,

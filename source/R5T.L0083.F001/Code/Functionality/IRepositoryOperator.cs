@@ -4,6 +4,8 @@ using System.Linq;
 
 using LibGit2Sharp;
 
+using F10Y.T0011;
+
 using R5T.T0132;
 
 using Glossary = R5T.Y0004.Glossary;
@@ -20,6 +22,7 @@ namespace R5T.L0083.F001
     [FunctionalityMarker]
     public partial interface IRepositoryOperator : IFunctionalityMarker
     {
+        [InstanceIdentity("47DCB0BE-5F1E-4C44-99F3-588247CA2D47")]
         public string Clone_NonIdempotent(
             string sourceUrl,
             string repositoryDirectoryPath,
@@ -75,6 +78,7 @@ namespace R5T.L0083.F001
         }
 
         // Prior work in R5T.L0001.Extensions.
+        [InstanceIdentity("07425C96-5685-4317-B050-048E8D11C225")]
         public string Discover_RepositoryDirectoryPath(string path)
         {
             var wasFound = this.Try_Discover_RepositoryDirectoryPath(
@@ -89,6 +93,7 @@ namespace R5T.L0083.F001
             return repositoryPath;
         }
 
+        [InstanceIdentity("ECBF53F2-8F9F-4837-A53B-6A06A488481C")]
         public void Fetch_Origin(
             Repository repository,
             string username,
@@ -103,6 +108,7 @@ namespace R5T.L0083.F001
                 password);
         }
 
+        [InstanceIdentity("528C4B24-7581-402A-B1DF-F3488BB9971C")]
         // Adapted from here: https://github.com/libgit2/libgit2sharp/wiki/git-fetch
         public void Fetch_Origin(
             string repositoryDirectoryPath,
@@ -117,6 +123,7 @@ namespace R5T.L0083.F001
                 password);
         }
 
+        [InstanceIdentity("8F26FB3C-D766-49B2-94E8-1B828F16DD58")]
         public void Fetch(
             Repository repository,
             Remote remote,
@@ -164,6 +171,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("92DB0D0D-72DD-4643-AD12-F18B32C68AC6")]
         public bool Has_Branch(
             Repository repository,
             string branchName,
@@ -176,6 +184,7 @@ namespace R5T.L0083.F001
         }
 
         /// <inheritdoc cref="Get_DirectoryPath(Repository)"/>
+        [InstanceIdentity("851F5F50-076D-42B4-A466-764B18672CF0")]
         public string Get_Path(Repository repository)
             => this.Get_DirectoryPath(repository);
 
@@ -201,6 +210,7 @@ namespace R5T.L0083.F001
         /// <summary>
         /// Returns null if not found.
         /// </summary>
+        [InstanceIdentity("21D125F0-112D-4825-B253-BFBEB49E7CED")]
         public Branch Get_Branch_Main(Repository repository)
         {
             var has_Main = this.Has_Branch(
@@ -244,6 +254,7 @@ namespace R5T.L0083.F001
             return revisionIdentity;
         }
 
+        [InstanceIdentity("B1EF6533-FFF9-4D23-94ED-22007269F6CA")]
         public string Get_DirectoryPath(Repository repository)
         {
             var gitDirectoryPath = this.Get_GitDirectoryPath(repository);
@@ -254,6 +265,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("5D280D1E-3457-4608-8831-C8BBDAED86CA")]
         public string Get_GitDirectoryPath(Repository repository)
             => repository.Info.Path;
 
@@ -271,6 +283,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("334F0E24-F9B0-480F-AAC0-CA4E2DA824B6")]
         public Repository Get_Repository(string repositoryDirectoryPath)
         {
             var output = new Repository(repositoryDirectoryPath);
@@ -336,6 +349,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("721A59C9-E19E-4F55-808D-DC2265D1A304")]
         public bool Has_UnpulledChanges_WithoutFetch(string repositoryDirectoryPath)
         {
             using var repository = this.Get_Repository(repositoryDirectoryPath);
@@ -344,6 +358,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("FE8ED9CD-8181-40F8-BDB8-0D609F68A89A")]
         public bool Has_UnpulledChanges_WithoutFetch(Repository repository)
         {
             // Determine if the local master branch is behind the remote master branch.
@@ -375,6 +390,7 @@ namespace R5T.L0083.F001
 
         /// <inheritdoc cref="Has_UnpushedChanges(Repository)"/>
         // Prior work in R5T.D0038.L0001.
+        [InstanceIdentity("CDDEC659-03F3-4BA7-8948-FADE08465F9B")]
         public bool Has_UnpushedChanges(string repositoryDirectoryPath)
         {
             using var repository = this.Get_Repository(repositoryDirectoryPath);
@@ -386,6 +402,7 @@ namespace R5T.L0083.F001
         /// <summary>
         /// As opposed to <see cref="Has_OnlyUnpushedChanges(Repository)"/>, this method also looks for differenced or staged files, not just unpushed commits.
         /// </summary>
+        [InstanceIdentity("18F88633-3C0A-4AC5-BD2A-89B9DCBF6F73")]
         public bool Has_UnpushedChanges(Repository repository)
         {
             // Are there any differenced or staged files in the working copy?
@@ -408,6 +425,7 @@ namespace R5T.L0083.F001
         }
 
         /// <inheritdoc cref="Has_OnlyUnpushedChanges(Repository)"/>
+        [InstanceIdentity("F976184B-2FE0-4A78-B585-2B0FDF9227D7")]
         public bool Has_OnlyUnpushedChanges(string repositoryDirectoryPath)
         {
             using var repository = this.Get_Repository(repositoryDirectoryPath);
@@ -419,6 +437,7 @@ namespace R5T.L0083.F001
         /// <summary>
         /// As opposed to <see cref="Has_UnpushedChanges(Repository)"/>, this does not look for differenced or staged files, just unpushed commits.
         /// </summary>
+        [InstanceIdentity("C1F4AD23-6BA8-4BF2-85B4-63003987CC16")]
         public bool Has_OnlyUnpushedChanges(Repository repository)
         {
             // Get the current branch.
@@ -442,6 +461,7 @@ namespace R5T.L0083.F001
             return false;
         }
 
+        [InstanceIdentity("F543402B-7650-4272-95AC-9EC66D32AA62")]
         public bool Is_Repository(string directoryPath)
         {
             var output = Repository.IsValid(directoryPath);
@@ -490,6 +510,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("D68C5AA3-5616-4BD1-B1C4-B1B54A6D25F5")]
         public IEnumerable<string> Enumerate_DifferencedOrStaged_RelativeFilePaths(Repository repository)
         {
             var differencedFilePaths = this.Enumerate_DifferencedOrStaged_Changes(repository)
@@ -590,6 +611,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("1BA3601A-1BA1-4F83-9992-1C5EE27DD790")]
         public IEnumerable<TreeEntryChanges> Enumerate_DifferencedOrStaged_Changes(Repository repository)
         {
             var output = repository.Diff.Compare<TreeChanges>(
@@ -677,6 +699,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("27782413-724A-476F-81CD-8B62828ABCF9")]
         public MergeResult Pull_WithoutFetch_IsMerge(
             string repositoryDirectoryPath,
             string authorName,
@@ -692,6 +715,7 @@ namespace R5T.L0083.F001
             return output;
         }
 
+        [InstanceIdentity("E56DF860-A626-4F5C-B7E4-FD3F52C193F5")]
         public MergeResult Pull_WithoutFetch_IsMerge(
             Repository repository,
             string authorName,
@@ -819,6 +843,7 @@ namespace R5T.L0083.F001
         /// </summary>
         /// <param name="repositoryPath"><inheritdoc cref="Repository.Discover(string)" path="/returns"/></param>
         // Prior work in R5T.L0001.Extensions.
+        [InstanceIdentity("78328142-73A0-4419-A1ED-381B268108B4")]
         public bool Try_Discover_RepositoryDirectoryPath(
             string path,
             out string repositoryPath)
@@ -833,6 +858,7 @@ namespace R5T.L0083.F001
         /// Evaluates the output of <see cref="Repository.Discover(string)"/> to determine if a repository was discovered.
         /// </summary>
         // Prior work in R5T.L0001.Extensions.
+        [InstanceIdentity("D8E05916-DB99-4EDF-ACF4-DC856C94B9E5")]
         public bool WasFound_RepositoryDirectory(string repositoryDirectoryDiscoveryResult)
         {
             var wasFound = Instances.NullOperator.Is_NotNull(repositoryDirectoryDiscoveryResult);

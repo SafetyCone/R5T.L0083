@@ -1,5 +1,7 @@
 using System;
 
+using F10Y.T0011;
+
 using R5T.T0131;
 
 
@@ -17,6 +19,7 @@ namespace R5T.L0083.F001
         /// <summary>
         /// <para><value>origin</value></para>
         /// </summary>
+        [InstanceIdentity("754DF21D-ABEA-4A76-955A-10F9612FBDF2")]
         public string Origin => "origin";
     }
 }

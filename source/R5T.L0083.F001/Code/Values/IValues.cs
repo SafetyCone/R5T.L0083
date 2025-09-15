@@ -2,6 +2,8 @@ using System;
 
 using LibGit2Sharp;
 
+using F10Y.T0011;
+
 using R5T.T0131;
 
 
@@ -13,6 +15,7 @@ namespace R5T.L0083.F001
         /// <summary>
         /// Null
         /// </summary>
+        [InstanceIdentity("3F61E545-A036-4360-9C63-B3E93ECA9C47")]
         public Branch Branch_NotFound => null;
 
         /// <summary>
